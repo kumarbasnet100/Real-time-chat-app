@@ -6,7 +6,7 @@ import { auth, db } from "../../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import upload from "../../lib/kumar"; // Now uses Cloudinary
+import upload from "../../lib/Upload"; // Now uses Cloudinary
 import { AppContext } from "../../context/AppContext";
 
 const ProfileUpdate = () => {

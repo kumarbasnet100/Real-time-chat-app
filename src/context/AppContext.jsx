@@ -10,7 +10,7 @@ const AppContextProvider = (props)=>{
     const navigate = useNavigate();
 
     const [userData, setUserData] = useState(null);
-    const [chatData, setChatData] = useState(null);
+    const [chatData, setChatData] = useState([]);
     const [messagesId, setMessagesId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [chatUser, setChatUser] = useState(null);
@@ -45,17 +45,26 @@ const AppContextProvider = (props)=>{
     useEffect(() => {
       if(userData){
         const chatRef = doc(db,'chats',userData.id);
-        const unSub = onSnapshot(chatRef,async (res)=>{
-            const chatItems = res.data().chatsData
+        const unSub = onSnapshot(chatRef, async (res) => {
+            const chatDoc = res.data();
+            if (!chatDoc || !chatDoc.chatsData) {
+                console.warn("No chatsData found or doc is undefined");
+                setChatData([]); // set to empty array so UI won't break
+                return;
+            }
+        
+            const chatItems = chatDoc.chatsData;
             const tempData = [];
-            for(const item of chatItems){
+        
+            for (const item of chatItems) {
                 const userRef = doc(db, 'users', item.rId);
                 const userSnap = await getDoc(userRef);
                 const userData = userSnap.data();
-                tempData.push({...item,userData})
+                tempData.push({ ...item, userData });
             }
-            setChatData(tempData.sort((a,b)=>b.updatedAt - a.updatedAt))
-        })
+        
+            setChatData(tempData.sort((a, b) => b.updatedAt - a.updatedAt));
+        });        
         return () =>{
             unSub();
         }
